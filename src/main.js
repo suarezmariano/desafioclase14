@@ -6,7 +6,8 @@ const { Server: Socket } = require('socket.io');
 const ContenedorMemoria = require('../contenedores/ContenedorMemoria.js');
 const ContenedorArchivo = require('../contenedores/ContenedorArchivo.js');
 
-const { options } = require('../mysql/options');
+const { optionsMySql } = require('../mysql/options');
+const { optionsSqlite } = require('../sqlite3/options');
 
 //--------------------------------------------
 // instancio servidor, socket y api
@@ -15,8 +16,8 @@ const app = express();
 const httpServer = new HttpServer(app);
 const io = new Socket(httpServer);
 
-const productosApi = new ContenedorMemoria(options, 'products');
-const mensajesApi = new ContenedorArchivo('mensajes.json');
+const productosApi = new ContenedorMemoria(optionsMySql, 'products');
+const mensajesApi = new ContenedorArchivo(optionsSqlite);
 
 //--------------------------------------------
 // configuro el socket

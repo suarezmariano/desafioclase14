@@ -1,84 +1,91 @@
-const { promises: fs } = require('fs')
+const knex = require('knex');
 
 class ContenedorArchivo {
+  constructor(table) {
+    this.table = table;
+  }
 
-    constructor(ruta) {
-        this.ruta = ruta;
-    }
-
-    async listar(id) {
-        const objs = await this.listarAll()
-        const buscado = objs.find(o => o.id == id)
-        return buscado
-    }
-
-    async listarAll() {
-        try {
-            const objs = await fs.readFile(this.ruta, 'utf-8')
-            return JSON.parse(objs)
-        } catch (error) {
-            return []
+  listar(id) {
+    knex
+      .from(this.table)
+      .select('name', 'price', 'thumbnail')
+      .where('id', '==', id)
+      .then((data) => {
+        for (registro of data) {
+          console.log(
+            `${registro['name']} ${registro['price']} ${registro['thumbnail']}`
+          );
+          return registro;
         }
-    }
+      })
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  }
 
-    async guardar(obj) {
-        const objs = await this.listarAll()
-
-        let newId
-        if (objs.length == 0) {
-            newId = 1
-        } else {
-            newId = objs[objs.length - 1].id + 1
+  listarAll() {
+    knex
+      .from(this.table)
+      .select('*')
+      .then((data) => {
+        for (registro of data) {
+          console.log(
+            `${registro['id']} ${registro['name']} ${registro['price']} ${registro['thumbnail']}`
+          );
+          return registro;
         }
+      })
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  }
 
-        const newObj = { ...obj, id: newId }
-        objs.push(newObj)
+  guardar(elem) {
+    knex(this.table)
+      .insert(elem)
+      .then(() => console.log('values inserted'))
+      .catch(() => {
+        console.log(err);
+        throw err;
+      });
+  }
 
-        try {
-            await fs.writeFile(this.ruta, JSON.stringify(objs, null, 2))
-            return newId
-        } catch (error) {
-            throw new Error(`Error al guardar: ${error}`)
-        }
-    }
+  actualizar(elem, id) {
+    knex
+      .from(this.table)
+      .where('id', id)
+      .update(elem)
+      .then(() => console.log('product updated'))
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  }
 
-    async actualizar(elem, id) {
-        const objs = await this.listarAll()
-        const index = objs.findIndex(o => o.id == id)
-        if (index == -1) {
-            throw new Error(`Error al actualizar: no se encontró el id ${id}`)
-        } else {
-            objs[index] = elem
-            try {
-                await fs.writeFile(this.ruta, JSON.stringify(objs, null, 2))
-            } catch (error) {
-                throw new Error(`Error al borrar: ${error}`)
-            }
-        }
-    }
+  borrar(id) {
+    knex
+      .from(this.table)
+      .where('id', '==', id)
+      .del()
+      .then(() => console.log('product deleted'))
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  }
 
-    async borrar(id) {
-        const objs = await this.listarAll()
-        const index = objs.findIndex(o => o.id == id)
-        if (index == -1) {
-            throw new Error(`Error al borrar: no se encontró el id ${id}`)
-        }
-
-        objs.splice(index, 1)
-        try {
-            await fs.writeFile(this.ruta, JSON.stringify(objs, null, 2))
-        } catch (error) {
-            throw new Error(`Error al borrar: ${error}`)
-        }
-    }
-
-    async borrarAll() {
-        try {
-            await fs.writeFile(this.ruta, JSON.stringify([], null, 2))
-        } catch (error) {
-            throw new Error(`Error al borrar todo: ${error}`)
-        }
-    }
+  borrarAll() {
+    knex
+      .from(this.table)
+      .del()
+      .then(() => console.log('all products deleted'))
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  }
 }
 
-module.exports = ContenedorArchivo
+module.exports = ContenedorArchivo;

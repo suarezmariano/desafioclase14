@@ -8,7 +8,7 @@ class ContenedorMemoria {
 
   listar(id) {
     knex
-      .from('products')
+      .from(this.table)
       .select('name', 'price', 'thumbnail')
       .where('id', '==', id)
       .then((data) => {
@@ -16,8 +16,8 @@ class ContenedorMemoria {
           console.log(
             `${registro['name']} ${registro['price']} ${registro['thumbnail']}`
           );
+          return registro;
         }
-        return registro;
       })
       .catch((err) => {
         console.log(err);
@@ -27,15 +27,15 @@ class ContenedorMemoria {
 
   listarAll() {
     knex
-      .from('products')
+      .from(this.table)
       .select('*')
       .then((data) => {
         for (registro of data) {
           console.log(
             `${registro['id']} ${registro['name']} ${registro['price']} ${registro['thumbnail']}`
           );
+          return registro;
         }
-        return registro;
       })
       .catch((err) => {
         console.log(err);
@@ -44,7 +44,7 @@ class ContenedorMemoria {
   }
 
   guardar(elem) {
-    knex('products')
+    knex(this.table)
       .insert(elem)
       .then(() => console.log('values inserted'))
       .catch(() => {
@@ -55,7 +55,7 @@ class ContenedorMemoria {
 
   actualizar(elem, id) {
     knex
-      .from('products')
+      .from(this.table)
       .where('id', id)
       .update(elem)
       .then(() => console.log('product updated'))
@@ -67,7 +67,7 @@ class ContenedorMemoria {
 
   borrar(id) {
     knex
-      .from('products')
+      .from(this.table)
       .where('id', '==', id)
       .del()
       .then(() => console.log('product deleted'))
@@ -79,7 +79,7 @@ class ContenedorMemoria {
 
   borrarAll() {
     knex
-      .from('products')
+      .from(this.table)
       .del()
       .then(() => console.log('all products deleted'))
       .catch((err) => {

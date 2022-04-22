@@ -1,4 +1,4 @@
-const { options } = require('../mysql/options');
+const { options } = require('../sqlite3/options');
 const knex = require('knex')(options);
 
 knex.schema
